@@ -38,7 +38,7 @@ const posts = [
         "media": "https://unsplash.it/600/400?image=24",
         "author": {
             "name": "Luca Formicola",
-            "image": "https://r2.starryai.com/results/32005302/fc5f0abc-f714-47f1-bd8f-dce3e78fe55d.webp"
+            "image": null
         },
         "likes": 56,
         "created": "2021-04-03"
@@ -53,60 +53,76 @@ const posts = [
         },
         "likes": 95,
         "created": "2021-03-05"
-    } 
+    }
 ];
+
+const likedPosts = [];
+
 
 const container = document.getElementById('container');
 
-for (let i = 0; i < posts.length; i++) {
-    const post = posts[i];
-    const postCard = document.createElement('div');
-    postCard.classList.add('post');
+function renderPost() {
+    for (let i = 0; i < posts.length; i++) {
+        const post = posts[i];
+        const postCard = document.createElement('div');
+        postCard.classList.add('post');
 
-    postCard.innerHTML = `
-    <div class="post__header">
-        <div class="post-meta">                    
-            <div class="post-meta__icon">
-                <img class="profile-pic" src="${post.author.image}" alt="${post.author.name}">                    
+        postCard.innerHTML = `
+        <div class="post__header">
+            <div class="post-meta">                    
+                <div class="post-meta__icon">
+                    <img class="profile-pic" src="${post.author.image}" alt="${post.author.name}">                    
+                </div>
+                <div class="post-meta__data">
+                    <div class="post-meta__author">${post.author.name}</div>
+                    <div class="post-meta__time">${post.created}</div>
+                </div>                    
             </div>
-            <div class="post-meta__data">
-                <div class="post-meta__author">${post.author.name}</div>
-                <div class="post-meta__time">${post.created}</div>
-            </div>                    
         </div>
-    </div>
-    <div class="post__text">${post.content}</div>
-    <div class="post__image">
-        <img src="${post.media}" alt="">
-    </div>
-    <div class="post__footer">
-        <div class="likes js-likes">
-            <div class="likes__cta">
-                <a id="likeButton" class="like-button  js-like-button" href="#" data-postid="${post.id}">
-                    <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
-                    <span class="like-button__label">Mi Piace</span>
-                </a>
-            </div>
-            <div class="likes__counter">
-                Piace a <b id="like-counter-${post.id}" class="js-likes-counter">${post.likes}</b> persone
-            </div>
-        </div> 
-    </div>
-  `;
+        <div class="post__text">${post.content}</div>
+        <div class="post__image">
+            <img src="${post.media}" alt="">
+        </div>
+        <div class="post__footer">
+            <div class="likes js-likes">
+                <div class="likes__cta">
+                    <a class="like-button js-like-button" href="#" data-postid="${post.id}">
+                        <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
+                        <span class="like-button__label">Mi Piace</span>
+                    </a>
+                </div>
+                <div class="likes__counter">
+                    Piace a <b class="js-likes-counter" data-postid="${post.id}">${post.likes}</b> persone
+                </div>
+            </div> 
+        </div>
+      `;
 
-  container.appendChild(postCard);
-  const likeBtn = postCard.querySelector('.like-button');
-  likeBtn.addEventListener("click", function()  {
-    // uso il "!" per controllare che la condizione sia opposta 
-    if (!likeBtn.classList.contains('like-button--liked')) {
-        post.likes += 1;
-        likeBtn.classList.add('like-button--liked');
-    } else {
-        post.likes -= 1;
-        likeBtn.classList.remove('like-button--liked');
+        container.appendChild(postCard);
+        
+        const likeBtn = postCard.querySelector('.like-button');
+        likeBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            const postId = this.getAttribute('data-postid');
+            const post = posts.find(p => p.id == postId);
+
+            if (!likeBtn.classList.contains('like-button--liked')) {
+                post.likes += 1;
+                likeBtn.classList.add('like-button--liked');
+                likedPosts.push(postId);
+            } else {
+                post.likes -= 1;
+                likeBtn.classList.remove('like-button--liked');
+            }
+
+            const likesCounter = document.querySelector(`.js-likes-counter[data-postid="${post.id}"]`);
+            likesCounter.textContent = post.likes;
+            
+        });
     }
-    const likesCounter = document.getElementById(`like-counter-${post.id}`);
-    likesCounter.textContent = post.likes;
-  });
+    
+    
 }
+
+renderPost();
 
